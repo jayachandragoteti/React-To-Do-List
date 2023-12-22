@@ -7,7 +7,7 @@ import Footer from './components/Footer/Footer.tsx';
 import apiRequest from './components/API/apiRequest.js';
 
 function App() {
-  const API_URL = 'http://localhost:3500/items';
+  const API_URL = 'http://localhost:5000/items';
 
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState('');
@@ -41,11 +41,11 @@ function App() {
     const id = items.length ? items[items.length - 1].id + 1 : 1;
     const myNewItem = { id, checked: false, item };
     const listItems = [...items, myNewItem];
+    console.log("myNewItem", myNewItem);
     setItems(listItems);
-
     const postOptions = {
       method: 'POST',
-      header: {
+      headers: {
         'Content-TYpe': 'application/json',
       },
       body: JSON.stringify(myNewItem),
@@ -53,6 +53,7 @@ function App() {
     const result = await apiRequest(API_URL, postOptions);
     if (result) setFetchError(result);
   };
+
   const addItemSubmitHandler = (e) => {
     e.preventDefault();
     if (!newItem) return;
@@ -68,20 +69,31 @@ function App() {
     const myItem = listItems.filter((item) => item.id === itemId);
     const updateOption = {
       method: 'PATCH',
-      header: {
+      headers: {
         'Content-TYpe': 'application/json',
       },
       body: JSON.stringify({ checked: myItem[0].checked }),
     };
     const newUel = `${API_URL}/${itemId}`
-    const result = await apiRequest(API_URL, updateOption);
+    const result = await apiRequest(newUel, updateOption);
     if (result) setFetchError(result);
   };
 
-  const deleteItemHandler = (itemId) => {
+  const deleteItemHandler = async (itemId) => {
     const listItems = items.filter((item) => item.id !== itemId);
     setItems(listItems);
+    const updateOption = {
+      method: 'DELETE',
+      headers: {
+        'Content-TYpe': 'application/json',
+      },
+      body: JSON.stringify({ listItems }),
+    };
+    const newUel = `${API_URL}/${itemId}`
+    const result = await apiRequest(newUel, updateOption);
+    if (result) setFetchError(result);
   };
+
   return (
     <div className='App'>
       <Header title='Todo List' />
